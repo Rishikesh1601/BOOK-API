@@ -1,8 +1,13 @@
 const express = require('express');
+//take body-parser for the postman thing
+var bodyParser = require("body-parser");
 //database
 const database = require("./database");
 //initialize express
 const booky = express();
+//initialize body parser
+booky.use(bodyParser.urlencoded({extended:true}));
+booky.use(bodyParser.json());
 
 
 //FIRST BUILD ALL BOOK RELEATED APIS
@@ -105,6 +110,30 @@ booky.get("/publications/is/:isbn",(req,res)=>{
     }
     return res.json({publication:getSpecificPublication});
 })
+
+
+//ADD NEW BOOKS
+booky.post("/book/new",(req,res)=>{
+    const newBook = req.body;
+    database.books.push(newBook);
+    return res.json({UpdatedBooks:database.books});
+})
+// now go the postman and make your own workspace
+
+//ADD NEW AUTHORS
+booky.post("/author/new",(req,res)=>{
+    const newAuthor = req.body;
+    database.authors.push(newAuthor);
+    return res.json({UpadtedAuthors:database.authors});
+})
+
+//ADD NEW PUBLICATION
+booky.post("/publication/new",(req,res)=>{
+    const newPublication = req.body;
+    database.publications.push(newPublication);
+    return res.json({UPDATEDPUBLICATION:database.publications})
+})
+
 
 
 //the port where we are deploying things
