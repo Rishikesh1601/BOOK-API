@@ -161,5 +161,12 @@ booky.put("/publication/update/book/:isbn" , (req,res)=>{
 })
 
 
+//DELETE A BOOK
+booky.delete("/book/delete/:isbn",(req,res)=>{
+    const UpdatedBookDatabase = database.books.filter((book)=>book.ISBN !== req.params.isbn)
+    database.books = UpdatedBookDatabase;
+    return res.json({books: database.books})
+})
+
 //the port where we are deploying things
 booky.listen(3000, ()=> console.log("listning"));
