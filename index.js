@@ -135,6 +135,31 @@ booky.post("/publication/new",(req,res)=>{
 })
 
 
+//UPDATE PUBLICATION AND BOOK
+booky.put("/publication/update/book/:isbn" , (req,res)=>{
+    //update publications db
+    database.publications.forEach((publication)=>{
+        if(publication.id === req.body.pubId){
+            return publication.books.push(req.params.isbn)
+        }
+    })
+
+    //update books db
+    database.books.forEach((book)=>{
+        if(book.ISBN === req.params.isbn){
+            //here we are reassigning things thinking that one book have only one publication
+            book.publications = req.body.pubId;
+            return;
+        }
+    })
+
+    return res.json({
+        books:database.books,
+        publications:database.publications,
+        message:"Successfully Updated"
+    })
+})
+
 
 //the port where we are deploying things
 booky.listen(3000, ()=> console.log("listning"));
