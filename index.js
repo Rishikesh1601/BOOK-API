@@ -168,5 +168,35 @@ booky.delete("/book/delete/:isbn",(req,res)=>{
     return res.json({books: database.books})
 })
 
+
+//DELETE A AUTHOR FROM A BOOK AND BOOK FROM THE AUTHOR
+booky.delete("/book/delete/author/:isbn/:authorId", (req,res)=>{
+    //update the book database
+    database.books.forEach((book)=>{
+        if(book.ISBN === req.params.isbn) {
+            const newAuthorList = book.author.filter((eachAuthor)=>eachAuthor !== parseInt(req.params.authorId));
+            book.author = newAuthorList;
+            return;
+        }
+    })
+
+    //update the author database
+    database.authors.forEach((author)=>{
+        if(author.id === parseInt(req.params.authorId)){
+            const newBooksList = author.books.filter((eachBook)=> eachBook !== req.params.isbn)
+            author.books = newBooksList;
+            return;
+        }
+    })
+
+    return res.json({
+        books: database.books,
+        authors: database.authors,
+        message: "Successfully Completed"
+    })
+})
+
+
+
 //the port where we are deploying things
 booky.listen(3000, ()=> console.log("listning"));
