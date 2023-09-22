@@ -1,4 +1,6 @@
 const express = require('express');
+//take mongoose
+const mongoose = require("mongoose");
 //take body-parser for the postman thing
 var bodyParser = require("body-parser");
 //database
@@ -8,6 +10,15 @@ const booky = express();
 //initialize body parser
 booky.use(bodyParser.urlencoded({extended:true}));
 booky.use(bodyParser.json());
+//establish the database connection
+mongoose.connect(
+    "mongodb+srv://rushikeshmundada1601:Rishikesh@rishikesh.9vzwnq0.mongodb.net/Booky?",
+    {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    }
+).then(() => console.log("connection established"))
+.catch(err => console.error("connection error:", err));
 
 
 //FIRST BUILD ALL BOOK RELEATED APIS
