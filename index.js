@@ -175,59 +175,115 @@ booky.post("/publication/new",async(req,res)=>{
 })
 
 //PUT REQUEST
+
+//UPDATE A BOOK TITLE
+booky.put("/book/upadte/:isbn",async(req,res)=>{
+    const UpdatedBook = await BookModel.findOneAndUpdate(
+        //here it takes 3 conditions
+        {
+            //condition 1 : select the book that need to be updated using ISBN
+            ISBN:req.params.isbn
+        },
+        {
+            //condition 2: where to get the updates
+            title:req.body.bookTitle
+        },
+        {
+            //condition 3: make new to true so that it display the new changes
+            new: true
+        }
+    )
+
+    return res.json({book:database.books});
+})
+
 //UPDATE PUBLICATION AND BOOK
-booky.put("/publication/update/book/:isbn" , (req,res)=>{
+booky.put("/publication/update/book/:isbn" , async(req,res)=>{
+    
     //update publications db
-    database.publications.forEach((publication)=>{
-        if(publication.id === req.body.pubId){
-            return publication.books.push(req.params.isbn)
+    const upadtedPublication = await PublicationModel.findOneAndUpdate(
+        {
+            id:req.body.pubId
+        },
+        {
+            $push:{
+                books:req.params.isbn
+            }
+        },
+        {
+            new:true
         }
-    })
-
+    )
+    
     //update books db
-    database.books.forEach((book)=>{
-        if(book.ISBN === req.params.isbn){
-            //here we are reassigning things thinking that one book have only one publication
-            book.publications = req.body.pubId;
-            return;
-        }
-    })
 
+    const UpdatedBook = await BookModel.findOneAndUpdate(
+        {
+            ISBN:req.params.isbn
+        },
+        {
+            $set:{
+                publications:req.body.pubId
+            }
+        },
+        {
+            new:true
+        }
+    )
+
+    //print the response
     return res.json({
-        books:database.books,
-        publications:database.publications,
+        books:UpdatedBook,
+        publications:upadtedPublication,
         message:"Successfully Updated"
     })
+
 })
 
 //DELETE REQUEST
 //DELETE A BOOK
-booky.delete("/book/delete/:isbn",(req,res)=>{
-    const UpdatedBookDatabase = database.books.filter((book)=>book.ISBN !== req.params.isbn)
-    database.books = UpdatedBookDatabase;
+booky.delete("/book/delete/:isbn",async(req,res)=>{
+    const UpdatedBookDatabase = await BookModel.findOneAndDelete(
+        {
+            ISBN:req.params.isbn
+        }
+    )
+    
     return res.json({books: database.books})
 })
 
 
 //DELETE A AUTHOR FROM A BOOK AND BOOK FROM THE AUTHOR
-booky.delete("/book/delete/author/:isbn/:authorId", (req,res)=>{
+booky.delete("/book/delete/author/:isbn/:authorId", async(req,res)=>{
     //update the book database
-    database.books.forEach((book)=>{
-        if(book.ISBN === req.params.isbn) {
-            const newAuthorList = book.author.filter((eachAuthor)=>eachAuthor !== parseInt(req.params.authorId));
-            book.author = newAuthorList;
-            return;
+    const UpdatedBook = await BookModel.findOneAndUpdate(
+        {
+            ISBN:req.params.isbn
+        },
+        {
+            $pull:{
+                author:parseInt(req.params.authorId)
+            }
+        },
+        {
+            new:true
         }
-    })
+    )
 
     //update the author database
-    database.authors.forEach((author)=>{
-        if(author.id === parseInt(req.params.authorId)){
-            const newBooksList = author.books.filter((eachBook)=> eachBook !== req.params.isbn)
-            author.books = newBooksList;
-            return;
+    const updatedAuthor = await AuthorModel.findOneAndUpdate(
+        {
+            id:parseInt(req.params.authorId)
+        },
+        {
+            $pull:{
+                books:req.params.isbn
+            }
+        },
+        {
+            new:true
         }
-    })
+    )
 
     return res.json({
         books: database.books,
