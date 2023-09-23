@@ -35,6 +35,7 @@ mongoose.connect(
 
 
 //FIRST BUILD ALL BOOK RELEATED APIS
+//GET REQUEST
 
 /*
 WHEN YOU ARE LOOKING FOT THE SINGLE VALUE THEN USE : await Model_name.findOne(condition)
@@ -148,28 +149,32 @@ booky.get("/publications/is/:isbn",async(req,res)=>{
 
 
 //ADD NEW BOOKS
-booky.post("/book/new",(req,res)=>{
-    const newBook = req.body;
-    database.books.push(newBook);
-    return res.json({UpdatedBooks:database.books});
+//POST REQUEST 
+
+booky.post("/book/new",async(req,res)=>{
+    //in mongoose we use destructures
+    const {newBook} = req.body;
+    const addNewBook = BookModel.create(newBook)
+    return res.json({Book:addNewBook, message:"new Book added"});
 })
 // now go the postman and make your own workspace
 
+
 //ADD NEW AUTHORS
-booky.post("/author/new",(req,res)=>{
-    const newAuthor = req.body;
-    database.authors.push(newAuthor);
-    return res.json({UpadtedAuthors:database.authors});
+booky.post("/author/new",async(req,res)=>{
+    const {newAuthor} = req.body;
+    const addNewAuthor = AuthorModel.create(newAuthor);
+    return res.json({Authors:addNewAuthor,message:"New author added"});
 })
 
 //ADD NEW PUBLICATION
-booky.post("/publication/new",(req,res)=>{
-    const newPublication = req.body;
-    database.publications.push(newPublication);
-    return res.json({UPDATEDPUBLICATION:database.publications})
+booky.post("/publication/new",async(req,res)=>{
+    const {newPublication} = req.body;
+    const addNewPublication = PublicationModel.create(newPublication);
+    return res.json({Publication:addNewPublication,message:"new publication added"});
 })
 
-
+//PUT REQUEST
 //UPDATE PUBLICATION AND BOOK
 booky.put("/publication/update/book/:isbn" , (req,res)=>{
     //update publications db
@@ -195,7 +200,7 @@ booky.put("/publication/update/book/:isbn" , (req,res)=>{
     })
 })
 
-
+//DELETE REQUEST
 //DELETE A BOOK
 booky.delete("/book/delete/:isbn",(req,res)=>{
     const UpdatedBookDatabase = database.books.filter((book)=>book.ISBN !== req.params.isbn)
