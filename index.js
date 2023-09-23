@@ -36,6 +36,11 @@ mongoose.connect(
 
 //FIRST BUILD ALL BOOK RELEATED APIS
 
+/*
+WHEN YOU ARE LOOKING FOT THE SINGLE VALUE THEN USE : await Model_name.findOne(condition)
+WHEN YOU ARE LOOKIG FOR ARRAY OF THINGS THEN USE: await Model_name.find(condition)
+*/
+
 //get all books api
 booky.get("/", async(req,res)=>{
     const getAllBooks = await BookModel.find();
@@ -43,9 +48,10 @@ booky.get("/", async(req,res)=>{
 })
 
 //get a specific book
-booky.get("/is/:isbn",(req,res)=>{
-    const getSpecificBook = database.books.filter((book) => book.ISBN === req.params.isbn);
-    if(getSpecificBook.length === 0){
+booky.get("/is/:isbn", async(req,res)=>{
+
+    const getSpecificBook = await BookModel.findOne({ISBN:req.params.isbn});
+    if(!getSpecificBook){
         return res.json({
             error: `No book with ${req.params.isbn} found`
         })
@@ -54,86 +60,90 @@ booky.get("/is/:isbn",(req,res)=>{
 })
 
 //get list of books based on category
-booky.get("/c/:category",(req,res)=>{
-    // now to get a thing from array we basically use for loop but here we can use INCLUDE
-    const getSpecificBook = database.books.filter((book) => book.category.includes(req.params.category));
-    if(getSpecificBook.length === 0){
+booky.get("/c/:category", async(req,res)=>{
+    
+    const getSpecificBook = await BookModel.find({category:req.params.category});
+    if(!getSpecificBook){
         return res.json({
             error: `no books with ${req.params.category} category`
-        })
-    }
-    return res.json({book:getSpecificBook});
-})
-
-//get list of books based on language
-booky.get("/l/:language",(req,res)=>{
-    const getSpecificBook = database.books.filter((book)=>book.language.includes(req.params.language));
-    if(getSpecificBook.length === 0){
-        return res.json({
-            error:`No books found with language ${req.params.language}`
         })
     }
     return res.json(getSpecificBook);
 })
 
+//get list of books based on language
+booky.get("/l/:language", async (req, res) => {
+    const getSpecificBook = await BookModel.find({language:req.params.language});
+    if (!getSpecificBook) {
+        return res.json({
+            error: `No books found with language ${req.params.language}`
+        });
+    }
+    return res.json(getSpecificBook);
+});
+
+
 
 //NOW DO IT FOR AUTHORS
 
 //get all the authors
-booky.get("/authors",(req,res)=>{
-    return res.json(database.authors)
+booky.get("/authors",async(req,res)=>{
+    getAllAuthors = await AuthorModel.find()
+    return res.json(AuthorModel)
 })
 
 //get specific author
-booky.get("/authors/book/:isbn",(req,res)=>{
-    const getSpecificAuthor = database.authors.filter((author) => author.books.includes(req.params.isbn));
-    if(getSpecificAuthor.length === 0){
+booky.get("/authors/book/:isbn",async(req,res)=>{
+    const getSpecificAuthor = await AuthorModel.findOne({books:req.params.isbn})
+   
+    if(!getSpecificAuthor){
         return res.json({
             error:`no id matches with ${req.params.isbn}`
         })
     }
-    return res.json({author:getSpecificAuthor})
+    return res.json(getSpecificAuthor)
 })
 
 //get author details based on authors name
-booky.get("/authors/:name",(req,res)=>{
-    const getSpecificAuthor = database.authors.filter((author)=>author.name === req.params.name);
-    if(getSpecificAuthor.length === 0){
+booky.get("/authors/:name",async(req,res)=>{
+    const getSpecificAuthor = await AuthorModel.findOne({name:req.params.name})
+    if(!getSpecificAuthor){
         return res.json({
             error:`no author found with name ${req.params.name}`
         })
     }
-    return res.json({names:getSpecificAuthor});
+    return res.json(getSpecificAuthor);
 })
 
 
 //NOW DO IT FOR PUBLICATIONS
 
 //get all the details of the publication
-booky.get("/publications",(req,res)=>{
-    return res.json(database.publications);
+booky.get("/publications",async(req,res)=>{
+    const getAllPublications = await PublicationModel.find();
+    return res.json(getAllPublications);
 })
 
 //get a specific publication
-booky.get("/publications/:name",(req,res)=>{
-    const getSpecificPublication = database.publications.filter((publication)=>publication.name === req.params.name);
-    if(getSpecificPublication.length === 0){
+booky.get("/publications/:name",async(req,res)=>{
+    const getSpecificPublication = await PublicationModel.findOne({name:req.params.name});
+    if(!getSpecificPublication){
         return res.json({
             error:`no publications found with name ${req.params.name}`
         })
     }
-    return res.json({publication:getSpecificPublication});
+    return res.json(getSpecificPublication);
 })
 
 //to get list of publications based on books
-booky.get("/publications/is/:isbn",(req,res)=>{
-    const getSpecificPublication = database.publications.filter((publication)=>publication.books.includes(req.params.isbn));
-    if(getSpecificPublication.length === 0){
+booky.get("/publications/is/:isbn",async(req,res)=>{
+    const getSpecificPublication = await PublicationModel.findOne({books:req.params.isbn});
+    if(!getSpecificPublication){
         return res.json({
             error:`no publication found with isbn ${req.params.isbn}`
         })
     }
-    return res.json({publication:getSpecificPublication});
+    return res.json(getSpecificPublication);
 })
 
 
