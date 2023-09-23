@@ -1,18 +1,31 @@
+require("dotenv").config();
+
 const express = require('express');
+
 //take mongoose
 const mongoose = require("mongoose");
+
 //take body-parser for the postman thing
 var bodyParser = require("body-parser");
+
 //database
 const database = require("./database");
+
+//models
+const BookModel = require("./database/book");
+const AuthorModel = require("./database/author");
+const PublicationModel = require("./database/publication")
+
 //initialize express
 const booky = express();
+
 //initialize body parser
 booky.use(bodyParser.urlencoded({extended:true}));
 booky.use(bodyParser.json());
+
 //establish the database connection
 mongoose.connect(
-    "mongodb+srv://rushikeshmundada1601:Rishikesh@rishikesh.9vzwnq0.mongodb.net/Booky?",
+    process.env.MONGO_URL,
     {
         useNewUrlParser: true,
         useUnifiedTopology: true
@@ -24,8 +37,9 @@ mongoose.connect(
 //FIRST BUILD ALL BOOK RELEATED APIS
 
 //get all books api
-booky.get("/", (req,res)=>{
-    return res.json(database.books);
+booky.get("/", async(req,res)=>{
+    const getAllBooks = await BookModel.find();
+    return res.json(getAllBooks);
 })
 
 //get a specific book
